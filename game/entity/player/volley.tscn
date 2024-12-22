@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://2mgui6b17l3k"]
+
+[ext_resource type="Texture2D" uid="uid://rjm03i05u1tf" path="res://icon.svg" id="1_yvqx3"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1ku3r"]
+radius = 32.0
+height = 64.0
+
+[node name="Volley" type="RigidBody2D"]
+gravity_scale = 0.0
+
+[node name="Icon" type="Sprite2D" parent="."]
+position = Vector2(0, -32)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("1_yvqx3")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -32)
+shape = SubResource("CapsuleShape2D_1ku3r")

@@ -1,0 +1,30 @@
+[gd_scene load_steps=4 format=3 uid="uid://b60y53yb0w5k6"]
+
+[ext_resource type="Script" path="res://game/entity/player/player.gd" id="1_ho5xm"]
+[ext_resource type="Texture2D" uid="uid://rjm03i05u1tf" path="res://icon.svg" id="1_yxgw6"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_mwmx4"]
+radius = 12.0
+height = 32.0
+
+[node name="Player" type="CharacterBody2D"]
+script = ExtResource("1_ho5xm")
+
+[node name="Icon" type="Sprite2D" parent="."]
+position = Vector2(0, -16)
+scale = Vector2(0.25, 0.25)
+texture = ExtResource("1_yxgw6")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -16)
+shape = SubResource("CapsuleShape2D_mwmx4")
+
+[node name="RemoteTransform2D" type="RemoteTransform2D" parent="."]
+position = Vector2(0, -40)
+
+[node name="Marker2D" type="Marker2D" parent="RemoteTransform2D"]
+
+[node name="Icon2" type="Sprite2D" parent="RemoteTransform2D/Marker2D"]
+position = Vector2(50, 0)
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("1_yxgw6")
