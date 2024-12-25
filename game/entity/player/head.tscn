@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://ddd8jy8ur8c5"]
+[gd_scene load_steps=5 format=3 uid="uid://ddd8jy8ur8c5"]
 
 [ext_resource type="Script" path="res://game/entity/player/head.gd" id="1_nj3d2"]
 [ext_resource type="Texture2D" uid="uid://rjm03i05u1tf" path="res://icon.svg" id="1_x5vyb"]
@@ -6,19 +6,34 @@
 [sub_resource type="CircleShape2D" id="CircleShape2D_qxnpo"]
 radius = 32.0
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_f8hvy"]
+size = Vector2(64, 26)
+
 [node name="Head" type="RigidBody2D"]
-collision_layer = 4
+collision_layer = 16
 gravity_scale = 0.4
+contact_monitor = true
+linear_damp = 0.5
 script = ExtResource("1_nj3d2")
 
 [node name="Collider" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_qxnpo")
 
 [node name="HeadModel" type="Sprite2D" parent="."]
-visible = false
 scale = Vector2(0.5, 0.5)
 texture = ExtResource("1_x5vyb")
 
-[node name="Area2D" type="Area2D" parent="."]
+[node name="Node" type="Node2D" parent="."]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+[node name="EnterRolling" type="Area2D" parent="Node"]
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node/EnterRolling"]
+position = Vector2(0, -31)
+shape = SubResource("RectangleShape2D_f8hvy")
+
+[node name="FloorCast" type="RayCast2D" parent="Node"]
+target_position = Vector2(0, 35)
+
+[connection signal="body_entered" from="Node/EnterRolling" to="." method="_on_enter_rolling_body_entered"]
+[connection signal="body_entered" from="Node/EnterRolling" to="." method="_on_area_2d_body_entered"]

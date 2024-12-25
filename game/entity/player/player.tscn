@@ -17,7 +17,7 @@ radius = 48.0
 
 [node name="Player" type="CharacterBody2D"]
 collision_layer = 2
-collision_mask = 5
+collision_mask = 21
 script = ExtResource("1_ho5xm")
 
 [node name="PlayerCollider" type="CollisionShape2D" parent="."]
@@ -31,7 +31,7 @@ shape = SubResource("CapsuleShape2D_j8rw0")
 [node name="InteractionArea" type="Area2D" parent="."]
 position = Vector2(0, -21)
 collision_layer = 0
-collision_mask = 12
+collision_mask = 28
 
 [node name="Collider" type="CollisionShape2D" parent="InteractionArea"]
 shape = SubResource("CircleShape2D_fkdut")
@@ -43,6 +43,7 @@ position = Vector2(1, 0)
 scale = Vector2(1.2, 1.2)
 
 [node name="HeadModel" type="Sprite2D" parent="Model"]
+visible = false
 position = Vector2(0, -74)
 rotation = 0.00456835
 scale = Vector2(0.5, 0.5)

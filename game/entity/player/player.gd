@@ -4,6 +4,7 @@ extends CharacterBody2D
 const SPEED := 200.0
 const DEFAULT_SPEED_MULTIPLIER := 1.0
 const HEADLESS_SPEED_MULTIPLIER := 2.0
+const ROLLING_SPEED_MULTIPLIER := 1.5
 const JUMP_VELOCITY := -400.0
 const THROW_IMPULSE := 500.0
 
@@ -20,6 +21,8 @@ var can_recall := true
 func _ready():
 	add_to_group(Groups.PLAYER)
 	add_to_group(Groups.HAS_WEIGHT)
+	
+	Signals.initiate_rolling.connect(_on_initiate_rolling)
 
 
 func _input(event: InputEvent):
@@ -34,6 +37,8 @@ func change_state(new_state: State):
 	match new_state:
 		State.DEFAULT:
 			add_to_group(Groups.HAS_WEIGHT)
+			$HeadCollider.position = Vector2(0, -74)
+			$Model/HeadModel.position = Vector2(0, -74)
 			$HeadCollider.set_disabled(false)
 			$Model/HeadModel.set_visible(true)
 		State.HEADLESS:
@@ -43,7 +48,11 @@ func change_state(new_state: State):
 		State.ITEM:
 			add_to_group(Groups.HAS_WEIGHT)
 		State.ROLLING:
-			pass
+			add_to_group(Groups.HAS_WEIGHT)
+			$HeadCollider.position = Vector2(0, 32)
+			$Model/HeadModel.position = Vector2(0, 32)
+			$HeadCollider.set_disabled(false)
+			$Model/HeadModel.set_visible(true)
 	
 	current_state = new_state
 
@@ -82,8 +91,11 @@ func _item_physics_process(delta: float):
 	move_and_slide()
 
 
-func _rolling_physics_process(_delta: float):
-	pass
+func _rolling_physics_process(delta: float):
+	apply_gravity(delta)
+	enable_movement(ROLLING_SPEED_MULTIPLIER)
+	enable_jump()
+	move_and_slide()
 
 
 func apply_gravity(delta: float):
@@ -103,6 +115,8 @@ func enable_movement(multiplier: float):
 func enable_jump():
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = JUMP_VELOCITY
+		#if current_state == State.ROLLING:
+			#change_state(State.HEADLESS)
 
 
 func enable_yeet():
@@ -125,6 +139,8 @@ func enable_yeet():
 
 func check_and_yeet(direction_vector: Vector2):
 	if Input.is_action_just_pressed("yeet"):
+		if direction_vector.y >= 0:
+			direction_vector.y = 0
 		change_state(State.HEADLESS)
 		$CrosshairOrigin.set_visible(false)
 		
@@ -155,6 +171,9 @@ func enable_grab():
 				body.queue_free()
 				change_state(State.DEFAULT)
 
+
+func _on_initiate_rolling(head_position):
+	change_state(State.ROLLING)
 
 func _on_recall_cooldown_timeout():
 	can_recall = true
