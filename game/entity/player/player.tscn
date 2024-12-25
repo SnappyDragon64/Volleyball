@@ -8,6 +8,7 @@ radius = 21.0
 height = 42.0
 
 [node name="Player" type="CharacterBody2D"]
+collision_layer = 2
 script = ExtResource("1_ho5xm")
 
 [node name="Icon" type="Sprite2D" parent="."]
@@ -30,3 +31,10 @@ visible = false
 position = Vector2(50, 0)
 scale = Vector2(0.1, 0.1)
 texture = ExtResource("1_yxgw6")
+
+[node name="Timer" type="Node" parent="."]
+
+[node name="RecallCooldown" type="Timer" parent="Timer"]
+one_shot = true
+
+[connection signal="timeout" from="Timer/RecallCooldown" to="." method="_on_recall_cooldown_timeout"]

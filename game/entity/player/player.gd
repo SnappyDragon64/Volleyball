@@ -9,8 +9,11 @@ enum State {DEFAULT, HEADLESS, ITEM, ROLLING}
 @onready var volley_scene := preload("res://game/entity/player/volley.tscn")
 @onready var volley_instance: RigidBody2D
 
+@onready var recall_cooldown = $Timer/RecallCooldown
+
 var current_state: State = State.DEFAULT
-var controller_mode := false
+var controller_mode := false 
+var can_recall := true
 
 func _ready():
 	volley_instance = volley_scene.instantiate()
@@ -78,13 +81,20 @@ func _default_physics_process(delta):
 
 
 func shoot(direction_vector: Vector2):
-	direction_vector = direction_vector.normalized() * 10
+	direction_vector = direction_vector.normalized() * 500
 	$RemoteTransform2D.set_remote_node("")
 	volley_instance.get_node("CollisionShape2D").set_disabled(false)
 	volley_instance.set_freeze_enabled(false)
-	volley_instance.add_constant_central_force(direction_vector)
+	volley_instance.apply_central_impulse(direction_vector)
 	current_state = State.HEADLESS
 
+
+func recall():
+	var recall_direction = Vector2(global_position.x - volley_instance.get_global_transform().origin.x, 0).normalized() * 150
+	volley_instance.apply_central_impulse(recall_direction)
+	can_recall = false
+	recall_cooldown.start()
+	
 
 func _headless_physics_process(delta):
 	if not is_on_floor():
@@ -92,6 +102,9 @@ func _headless_physics_process(delta):
 
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = JUMP_VELOCITY
+		
+	if Input.is_action_just_pressed("recall") and can_recall:
+		recall()
 	
 	var direction = Input.get_axis("move_left", "move_right")
 	
@@ -119,3 +132,8 @@ func _item_physics_process(delta):
 
 func _rolling_physics_process(delta):
 	pass
+
+
+func _on_recall_cooldown_timeout() -> void:
+	print("entered")
+	can_recall = true
