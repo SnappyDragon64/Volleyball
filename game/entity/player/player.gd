@@ -21,6 +21,7 @@ func _ready():
 func _on_volley_ready():
 	$RemoteTransform2D.set_remote_node(volley_instance.get_path())
 	volley_instance.get_node("CollisionShape2D").set_disabled(true)
+	volley_instance.set_freeze_enabled(true)
 
 
 func _input(event):
@@ -28,7 +29,7 @@ func _input(event):
 		controller_mode = false
 	elif event is InputEventJoypadButton:
 		controller_mode = true
-	elif event is InputEventMouse:
+	elif event is InputEventMouseButton:
 		controller_mode = false
 
 
@@ -56,17 +57,33 @@ func _default_physics_process(delta):
 		velocity.x = move_toward(velocity.x, 0, SPEED)
 		
 	if controller_mode:
-		var controller_direction = Input.get_vector("aim_left", "aim_right", "aim_down", "aim_down")
+		var controller_direction = Input.get_vector("aim_left", "aim_right", "aim_up", "aim_down")
 		
 		if not controller_direction.is_zero_approx():
-			var angle = controller_direction.angle_to(Vector2.DOWN)
+			var angle = controller_direction.angle()
+			$RemoteTransform2D/Marker2D.set_rotation(angle)
+			$RemoteTransform2D/Marker2D/Icon.set_visible(true)
 			
+			if Input.is_action_just_pressed("shoot"):
+				shoot(controller_direction)
+		else:
+			$RemoteTransform2D/Marker2D/Icon.set_visible(false)
 	else:
-		var controller_direction = get_global_transform().origin - get_global_mouse_position()
-		var angle = controller_direction.angle() - deg_to_rad(90)
+		var mouse_direction = get_global_mouse_position() - $RemoteTransform2D/Marker2D.get_global_transform().origin
 		
+		if Input.is_action_just_pressed("shoot"):
+			shoot(mouse_direction)
 
 	move_and_slide()
+
+
+func shoot(direction_vector: Vector2):
+	direction_vector = direction_vector.normalized() * 10
+	$RemoteTransform2D.set_remote_node("")
+	volley_instance.get_node("CollisionShape2D").set_disabled(false)
+	volley_instance.set_freeze_enabled(false)
+	volley_instance.add_constant_central_force(direction_vector)
+	current_state = State.HEADLESS
 
 
 func _headless_physics_process(delta):
