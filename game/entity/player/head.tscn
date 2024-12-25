@@ -1,0 +1,24 @@
+[gd_scene load_steps=4 format=3 uid="uid://ddd8jy8ur8c5"]
+
+[ext_resource type="Script" path="res://game/entity/player/head.gd" id="1_nj3d2"]
+[ext_resource type="Texture2D" uid="uid://rjm03i05u1tf" path="res://icon.svg" id="1_x5vyb"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_qxnpo"]
+radius = 32.0
+
+[node name="Head" type="RigidBody2D"]
+collision_layer = 4
+gravity_scale = 0.4
+script = ExtResource("1_nj3d2")
+
+[node name="Collider" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_qxnpo")
+
+[node name="HeadModel" type="Sprite2D" parent="."]
+visible = false
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("1_x5vyb")
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]

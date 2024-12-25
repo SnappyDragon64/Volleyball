@@ -1,40 +1,65 @@
-[gd_scene load_steps=4 format=3 uid="uid://b60y53yb0w5k6"]
+[gd_scene load_steps=7 format=3 uid="uid://pmhw162ba0le"]
 
 [ext_resource type="Script" path="res://game/entity/player/player.gd" id="1_ho5xm"]
 [ext_resource type="Texture2D" uid="uid://rjm03i05u1tf" path="res://icon.svg" id="1_yxgw6"]
+[ext_resource type="PackedScene" uid="uid://ddno4gmco4kp3" path="res://game/entity/player/player_model.tscn" id="2_fcqle"]
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_mwmx4"]
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_twx8h"]
 radius = 21.0
 height = 42.0
 
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_j8rw0"]
+radius = 32.0
+height = 64.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_fkdut"]
+radius = 48.0
+
 [node name="Player" type="CharacterBody2D"]
 collision_layer = 2
+collision_mask = 5
 script = ExtResource("1_ho5xm")
 
-[node name="Icon" type="Sprite2D" parent="."]
+[node name="PlayerCollider" type="CollisionShape2D" parent="."]
 position = Vector2(0, -21)
-scale = Vector2(0.33, 0.33)
+shape = SubResource("CapsuleShape2D_twx8h")
+
+[node name="HeadCollider" type="CollisionShape2D" parent="."]
+position = Vector2(0, -74)
+shape = SubResource("CapsuleShape2D_j8rw0")
+
+[node name="InteractionArea" type="Area2D" parent="."]
+position = Vector2(0, -21)
+collision_layer = 0
+collision_mask = 12
+
+[node name="Collider" type="CollisionShape2D" parent="InteractionArea"]
+shape = SubResource("CircleShape2D_fkdut")
+
+[node name="Model" type="Node2D" parent="."]
+
+[node name="PlayerModel" parent="Model" instance=ExtResource("2_fcqle")]
+position = Vector2(1, 0)
+scale = Vector2(1.2, 1.2)
+
+[node name="HeadModel" type="Sprite2D" parent="Model"]
+position = Vector2(0, -74)
+rotation = 0.00456835
+scale = Vector2(0.5, 0.5)
 texture = ExtResource("1_yxgw6")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, -21)
-shape = SubResource("CapsuleShape2D_mwmx4")
-
-[node name="RemoteTransform2D" type="RemoteTransform2D" parent="."]
-position = Vector2(0, -42)
-
-[node name="Marker2D" type="Marker2D" parent="RemoteTransform2D"]
-position = Vector2(0, -32)
-
-[node name="Icon" type="Sprite2D" parent="RemoteTransform2D/Marker2D"]
+[node name="CrosshairOrigin" type="Marker2D" parent="."]
 visible = false
-position = Vector2(50, 0)
+position = Vector2(0, -74)
+
+[node name="Crosshair" type="Sprite2D" parent="CrosshairOrigin"]
+position = Vector2(64, 0)
 scale = Vector2(0.1, 0.1)
 texture = ExtResource("1_yxgw6")
 
-[node name="Timer" type="Node" parent="."]
+[node name="Timers" type="Node" parent="."]
 
-[node name="RecallCooldown" type="Timer" parent="Timer"]
+[node name="RecallCooldown" type="Timer" parent="Timers"]
 one_shot = true
 
-[connection signal="timeout" from="Timer/RecallCooldown" to="." method="_on_recall_cooldown_timeout"]
+[connection signal="timeout" from="Timers/RecallCooldown" to="." method="_on_recall_cooldown_timeout"]

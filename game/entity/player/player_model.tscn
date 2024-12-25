@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://cmg0lp20u8ypa"]
+[gd_scene load_steps=3 format=3 uid="uid://ddno4gmco4kp3"]
 
 [ext_resource type="Texture2D" uid="uid://6bwemt8ryw6q" path="res://image.png" id="1_fbsvk"]
 [ext_resource type="Texture2D" uid="uid://rjm03i05u1tf" path="res://icon.svg" id="2_55ofv"]
@@ -22,7 +22,7 @@ scale = Vector2(0.25, 0.25)
 texture = ExtResource("2_55ofv")
 
 [node name="FrontBody" type="Polygon2D" parent="."]
-polygon = PackedVector2Array(-14, -31, -8, -9, 1, -7, 9, -9, 12, -25)
+polygon = PackedVector2Array(-14, -31, -8, -9, 1, -7, 9, -9, 9.45906, -11.4483, 6, -15, 6, -22, 11.7964, -23.9144, 12, -25)
 
 [node name="BackBody" type="Polygon2D" parent="FrontBody"]
 z_index = -1
@@ -30,13 +30,13 @@ color = Color(0.295057, 0.238359, 0.352226, 1)
 polygon = PackedVector2Array(-10, -33, -8, -9, 9, -9, 12, -25)
 
 [node name="Eye" type="Polygon2D" parent="FrontBody"]
-z_index = 1
 color = Color(0.83222, 0.405905, 0.755917, 1)
-polygon = PackedVector2Array(11.62, -23, 7, -21, 7, -16, 9.75, -13)
+polygon = PackedVector2Array(11.62, -23, 7, -21.4, 7, -16, 9.75, -13)
 
 [node name="EyeFrame" type="Polygon2D" parent="FrontBody"]
+z_index = -1
 color = Color(0.270222, 0.270222, 0.270222, 1)
-polygon = PackedVector2Array(6, -15, 6, -22, 12, -24, 10, -11)
+polygon = PackedVector2Array(1, -7, -14, -31, 12, -25, 9, -9)
 
 [node name="FrontLegR" type="Polygon2D" parent="."]
 color = Color(0.211765, 0.239216, 0.317647, 1)
