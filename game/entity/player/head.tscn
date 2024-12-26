@@ -6,8 +6,8 @@
 [sub_resource type="CircleShape2D" id="CircleShape2D_qxnpo"]
 radius = 32.0
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_f8hvy"]
-size = Vector2(64, 26)
+[sub_resource type="CircleShape2D" id="CircleShape2D_cxowc"]
+radius = 4.0
 
 [node name="Head" type="RigidBody2D"]
 collision_layer = 16
@@ -23,17 +23,17 @@ shape = SubResource("CircleShape2D_qxnpo")
 scale = Vector2(0.5, 0.5)
 texture = ExtResource("1_x5vyb")
 
-[node name="Node" type="Node2D" parent="."]
+[node name="RotationPivot" type="Node2D" parent="."]
 
-[node name="EnterRolling" type="Area2D" parent="Node"]
+[node name="RollArea" type="Area2D" parent="RotationPivot"]
 collision_mask = 2
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Node/EnterRolling"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RotationPivot/RollArea"]
 position = Vector2(0, -31)
-shape = SubResource("RectangleShape2D_f8hvy")
+shape = SubResource("CircleShape2D_cxowc")
 
-[node name="FloorCast" type="RayCast2D" parent="Node"]
+[node name="FloorCast" type="RayCast2D" parent="RotationPivot"]
 target_position = Vector2(0, 35)
 
-[connection signal="body_entered" from="Node/EnterRolling" to="." method="_on_enter_rolling_body_entered"]
-[connection signal="body_entered" from="Node/EnterRolling" to="." method="_on_area_2d_body_entered"]
+[connection signal="body_entered" from="RotationPivot/RollArea" to="." method="_on_area_2d_body_entered"]
+[connection signal="body_entered" from="RotationPivot/RollArea" to="." method="_on_enter_rolling_body_entered"]

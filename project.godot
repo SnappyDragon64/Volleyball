@@ -94,5 +94,4 @@ recall={
 2d_physics/layer_1="Terrain"
 2d_physics/layer_2="Player"
 2d_physics/layer_3="Head"
-2d_physics/layer_4="Moving Props"
-2d_physics/layer_5="Stationary Props"
+2d_physics/layer_4="Props"

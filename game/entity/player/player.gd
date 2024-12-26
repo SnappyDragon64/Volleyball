@@ -5,6 +5,7 @@ const SPEED := 200.0
 const DEFAULT_SPEED_MULTIPLIER := 1.0
 const HEADLESS_SPEED_MULTIPLIER := 2.0
 const ROLLING_SPEED_MULTIPLIER := 1.5
+const ANGULAR_VELOCITY := 9.375
 const JUMP_VELOCITY := -400.0
 const THROW_IMPULSE := 500.0
 
@@ -37,22 +38,20 @@ func change_state(new_state: State):
 	match new_state:
 		State.DEFAULT:
 			add_to_group(Groups.HAS_WEIGHT)
-			$HeadCollider.position = Vector2(0, -74)
-			$Model/HeadModel.position = Vector2(0, -74)
-			$HeadCollider.set_disabled(false)
+			$HeadCollider.set_deferred("disabled", false)
 			$Model/HeadModel.set_visible(true)
 		State.HEADLESS:
 			remove_from_group(Groups.HAS_WEIGHT)
-			$HeadCollider.set_disabled(true)
+			$HeadCollider.set_deferred("disabled", true)
 			$Model/HeadModel.set_visible(false)
+			$RollingHeadCollider.set_deferred("disabled", true)
+			$Model/RollingHeadModel.set_visible(false)
 		State.ITEM:
 			add_to_group(Groups.HAS_WEIGHT)
 		State.ROLLING:
 			add_to_group(Groups.HAS_WEIGHT)
-			$HeadCollider.position = Vector2(0, 32)
-			$Model/HeadModel.position = Vector2(0, 32)
-			$HeadCollider.set_disabled(false)
-			$Model/HeadModel.set_visible(true)
+			$RollingHeadCollider.set_deferred("disabled", false)
+			$Model/RollingHeadModel.set_visible(true)
 	
 	current_state = new_state
 
@@ -93,8 +92,8 @@ func _item_physics_process(delta: float):
 
 func _rolling_physics_process(delta: float):
 	apply_gravity(delta)
-	enable_movement(ROLLING_SPEED_MULTIPLIER)
-	enable_jump()
+	enable_rolling(delta)
+	enable_dismount()
 	move_and_slide()
 
 
@@ -110,13 +109,47 @@ func enable_movement(multiplier: float):
 		velocity.x = direction * SPEED * multiplier
 	else:
 		velocity.x = move_toward(velocity.x, 0, SPEED)
+	
+
+
+func enable_rolling(delta: float) -> float:
+	var direction = Input.get_axis("move_left", "move_right")
+	
+	if direction:
+		velocity.x = direction * SPEED * ROLLING_SPEED_MULTIPLIER
+		var current_rotation = $Model/RollingHeadModel.get_rotation()
+		var new_rotation = current_rotation + direction * ANGULAR_VELOCITY * delta
+		$Model/RollingHeadModel.set_rotation(new_rotation)
+	else:
+		velocity.x = move_toward(velocity.x, 0, SPEED)
+	
+	return direction
 
 
 func enable_jump():
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = JUMP_VELOCITY
-		#if current_state == State.ROLLING:
-			#change_state(State.HEADLESS)
+
+
+func enable_dismount():
+	if Input.is_action_just_pressed("jump"):
+		
+		velocity.y = JUMP_VELOCITY
+		
+		change_state(State.HEADLESS)
+		
+		set_position(get_position() + Vector2(0, 2))
+		
+		var head_instance: RigidBody2D = head_scene.instantiate()
+		var head_global_position = get_global_position() + Vector2(0, 32)
+		head_instance.set_global_position(head_global_position)
+		
+		var head_rotation = $Model/RollingHeadModel.get_rotation()
+		head_instance.set_rotation(head_rotation)
+		head_instance.roll_flag = true
+		head_instance.roll_direction = velocity.x
+		
+		call_deferred("add_sibling", head_instance)
 
 
 func enable_yeet():
@@ -149,16 +182,16 @@ func check_and_yeet(direction_vector: Vector2):
 		var crosshair_origin_global_position = $CrosshairOrigin.get_global_position()
 		head_instance.set_global_position(crosshair_origin_global_position)
 		
-		direction_vector = direction_vector.normalized() * 500
+		direction_vector = direction_vector.normalized() * THROW_IMPULSE
 		head_instance.apply_central_impulse(direction_vector)
 		# TODO: Add player's velocity to the head?
 		
-		add_sibling(head_instance)
+		call_deferred("add_sibling", head_instance)
 
 
 func enable_recall():
 	if Input.is_action_just_pressed("recall") and can_recall:
-		Signals.recall_head.emit(get_global_position())
+		Signals.recall_head.emit(global_position)
 		$Timers/RecallCooldown.start()
 		can_recall = false
 
@@ -172,8 +205,10 @@ func enable_grab():
 				change_state(State.DEFAULT)
 
 
-func _on_initiate_rolling(head_position):
+func _on_initiate_rolling(head_rotation: float):
 	change_state(State.ROLLING)
+	$Model/RollingHeadModel.set_rotation(head_rotation)
+
 
 func _on_recall_cooldown_timeout():
 	can_recall = true

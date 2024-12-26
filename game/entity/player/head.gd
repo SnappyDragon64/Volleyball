@@ -2,6 +2,11 @@ extends RigidBody2D
 
 
 const RECALL_IMPULSE := 8000.0
+const ROLL_TORQUE_IMPULSE_MULTIPLIER := 10.0
+const ROLL_IMPULSE_MULTIPLIER := 1.0
+
+var roll_flag := false
+var roll_direction := 0.0
 
 
 func _ready():
@@ -19,23 +24,19 @@ func _on_recall_head(player_global_position: Vector2):
 	var recall_magnitude = recall_direction.x * RECALL_IMPULSE
 	apply_torque_impulse(recall_magnitude)
 
+
 func _physics_process(delta: float) -> void:
-	if abs(linear_velocity) < Vector2(10, 10):
-		#print("stationary")
-		set_collision_layer_value(5, true)
-		set_collision_layer_value(4, false)
-	else:
-		#print("moving")
-		set_collision_layer_value(5, false)
-		set_collision_layer_value(4, true)
+	if roll_flag:
+		apply_torque_impulse(ROLL_TORQUE_IMPULSE_MULTIPLIER * roll_direction)
+		apply_central_impulse(Vector2(ROLL_IMPULSE_MULTIPLIER * roll_direction, 0))
+		roll_flag = false
 	
-	$Node.rotation = -rotation
+	$RotationPivot.rotation = -rotation
 
 
 func _on_enter_rolling_body_entered(body: Node2D) -> void:
+	var is_on_floor = $RotationPivot/FloorCast.is_colliding()
 	
-	var is_on_floor = $Node/FloorCast.is_colliding()
-	
-	if body.is_in_group(Groups.PLAYER) and is_on_floor:
-		Signals.initiate_rolling.emit(global_position)
+	if body.is_in_group(Groups.PLAYER) and body.get_velocity().y <= 0 and is_on_floor:
+		Signals.initiate_rolling.emit(rotation)
 		queue_free()

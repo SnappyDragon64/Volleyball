@@ -1,16 +1,17 @@
-[gd_scene load_steps=7 format=3 uid="uid://pmhw162ba0le"]
+[gd_scene load_steps=8 format=3 uid="uid://pmhw162ba0le"]
 
 [ext_resource type="Script" path="res://game/entity/player/player.gd" id="1_ho5xm"]
 [ext_resource type="Texture2D" uid="uid://rjm03i05u1tf" path="res://icon.svg" id="1_yxgw6"]
 [ext_resource type="PackedScene" uid="uid://ddno4gmco4kp3" path="res://game/entity/player/player_model.tscn" id="2_fcqle"]
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_twx8h"]
+[sub_resource type="CircleShape2D" id="CircleShape2D_5v76x"]
 radius = 21.0
-height = 42.0
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_j8rw0"]
+[sub_resource type="CircleShape2D" id="CircleShape2D_fwqix"]
 radius = 32.0
-height = 64.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_clstm"]
+radius = 32.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_fkdut"]
 radius = 48.0
@@ -22,11 +23,16 @@ script = ExtResource("1_ho5xm")
 
 [node name="PlayerCollider" type="CollisionShape2D" parent="."]
 position = Vector2(0, -21)
-shape = SubResource("CapsuleShape2D_twx8h")
+shape = SubResource("CircleShape2D_5v76x")
 
 [node name="HeadCollider" type="CollisionShape2D" parent="."]
 position = Vector2(0, -74)
-shape = SubResource("CapsuleShape2D_j8rw0")
+shape = SubResource("CircleShape2D_fwqix")
+
+[node name="RollingHeadCollider" type="CollisionShape2D" parent="."]
+position = Vector2(0, 32)
+shape = SubResource("CircleShape2D_clstm")
+disabled = true
 
 [node name="InteractionArea" type="Area2D" parent="."]
 position = Vector2(0, -21)
@@ -43,8 +49,14 @@ position = Vector2(1, 0)
 scale = Vector2(1.2, 1.2)
 
 [node name="HeadModel" type="Sprite2D" parent="Model"]
-visible = false
 position = Vector2(0, -74)
+rotation = 0.00456835
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("1_yxgw6")
+
+[node name="RollingHeadModel" type="Sprite2D" parent="Model"]
+visible = false
+position = Vector2(0, 32)
 rotation = 0.00456835
 scale = Vector2(0.5, 0.5)
 texture = ExtResource("1_yxgw6")
