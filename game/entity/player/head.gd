@@ -1,13 +1,11 @@
 extends RigidBody2D
 
 
-const RECALL_IMPULSE := 8000.0
-const ROLL_TORQUE_IMPULSE_MULTIPLIER := 10.0
-const ROLL_IMPULSE_MULTIPLIER := 1.0
+const FORCE := 500.0
+const SPEED := 300.0
 
-var roll_flag := false
-var roll_direction := 0.0
-
+var is_active_character := false
+var is_switch_blocked := false
 
 func _ready():
 	add_to_group(Groups.PLAYER)
@@ -15,28 +13,40 @@ func _ready():
 	add_to_group(Groups.PICKUP)
 	add_to_group(Groups.HEAD)
 	
-	Signals.recall_head.connect(_on_recall_head)
+	Signals.switch_active_character.connect(_on_switch_active_character)
 
 
-func _on_recall_head(player_global_position: Vector2):
-	var recall_direction = player_global_position - get_global_position()
-	recall_direction = recall_direction.normalized()
-	var recall_magnitude = recall_direction.x * RECALL_IMPULSE
-	apply_torque_impulse(recall_magnitude)
+func _on_switch_active_character(character: Constants.CHARACTER):
+	if not is_switch_blocked:
+		if character == Constants.CHARACTER.HEAD:
+			is_switch_blocked = true
+			is_active_character = true
+			$Camera2D.make_current()
+			$Timers/SwitchBlockTimer.start()
+		else:
+			is_active_character = false
 
 
-func _physics_process(delta: float) -> void:
-	if roll_flag:
-		apply_torque_impulse(ROLL_TORQUE_IMPULSE_MULTIPLIER * roll_direction)
-		apply_central_impulse(Vector2(ROLL_IMPULSE_MULTIPLIER * roll_direction, 0))
-		roll_flag = false
-	
-	$RotationPivot.rotation = -rotation
+func _physics_process(delta):
+	if is_active_character:
+		var direction = Input.get_axis("move_left", "move_right")
+		
+		if direction:
+			if linear_velocity.x > SPEED and direction * linear_velocity.x > 0:
+				constant_force.x = move_toward(constant_force.x, direction * FORCE, 10)
+			elif direction * linear_velocity.x < 0:
+				constant_force.x = move_toward(direction * FORCE * 2, direction * FORCE, 50)
+			else:
+				constant_force.x = move_toward(constant_force.x, direction * FORCE, 50)
+		else:
+			constant_force = Vector2(0,0)
+		
+		if not is_switch_blocked and Input.is_action_just_pressed("switch"):
+			is_switch_blocked = true
+			is_active_character = false
+			$Timers/SwitchBlockTimer.start()
+			Signals.switch_active_character.emit(Constants.CHARACTER.PLAYER)
 
 
-func _on_enter_rolling_body_entered(body: Node2D) -> void:
-	var is_on_floor = $RotationPivot/FloorCast.is_colliding()
-	
-	if body.is_in_group(Groups.PLAYER) and body.get_velocity().y <= 0 and is_on_floor:
-		Signals.initiate_rolling.emit(rotation)
-		queue_free()
+func _on_switch_block_timer_timeout():
+	is_switch_blocked = false
