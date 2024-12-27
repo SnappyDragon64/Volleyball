@@ -165,6 +165,7 @@ func enable_grab():
 
 func enable_character_switch():
 	if not is_switch_blocked and Input.is_action_just_pressed("switch"):
+		velocity.x = 0.0
 		is_switch_blocked = true
 		is_active_character = false
 		$Timers/SwitchBlockTimer.start()
