@@ -1,8 +1,7 @@
 extends RigidBody2D
 
 
-const TORQUE := 8000.0
-const LERP_DELTA := 10.0
+const TORQUE := 10000.0
 
 var is_active_character := false
 var is_switch_blocked := false
@@ -33,9 +32,9 @@ func _physics_process(delta):
 		
 		if direction:
 			if direction * angular_velocity < 0:
-				constant_torque = move_toward(direction * TORQUE * 2, direction * TORQUE, LERP_DELTA)
+				constant_torque = direction * TORQUE * 2
 			else:
-				constant_torque = move_toward(constant_torque, direction * TORQUE, LERP_DELTA)
+				constant_torque = direction * TORQUE
 		else:
 			constant_torque = 0.0
 		

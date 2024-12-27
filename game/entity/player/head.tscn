@@ -8,6 +8,7 @@ radius = 32.0
 
 [node name="Head" type="RigidBody2D"]
 collision_layer = 16
+mass = 0.8
 gravity_scale = 0.4
 contact_monitor = true
 linear_damp = 0.5
